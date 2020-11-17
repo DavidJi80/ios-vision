@@ -25,6 +25,7 @@
 		0408F0CE2564000A00EF467E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0408F0D02564000A00EF467E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0408F0D12564000A00EF467E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0408F0EB256406C800EF467E /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		09EF4A2336A8983BB36C1872 /* Pods-ios-vision.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.debug.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.debug.xcconfig"; sourceTree = "<group>"; };
 		1B3608B14A8270749440E11F /* Pods_ios_vision.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ios_vision.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EE313CAE647EC6A3D6CDEEB /* Pods-ios-vision.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.release.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.release.xcconfig"; sourceTree = "<group>"; };
@@ -64,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				0408F0DF2564017A00EF467E /* SupportFiles */,
+				0408F0EA2564069700EF467E /* Define */,
 				0408F0E72564037A00EF467E /* Models */,
 			);
 			path = "ios-vision";
@@ -89,6 +91,14 @@
 				0408F0C62564000700EF467E /* ViewController.m */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		0408F0EA2564069700EF467E /* Define */ = {
+			isa = PBXGroup;
+			children = (
+				0408F0EB256406C800EF467E /* PrefixHeader.pch */,
+			);
+			path = Define;
 			sourceTree = "<group>";
 		};
 		536245F7E235E50B53B9BC3B /* Frameworks */ = {
@@ -360,6 +370,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2WUZ4595W7;
+				GCC_PREFIX_HEADER = "ios-vision/Define/PrefixHeader.pch";
 				INFOPLIST_FILE = "ios-vision/SupportFiles/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -379,6 +390,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2WUZ4595W7;
+				GCC_PREFIX_HEADER = "ios-vision/Define/PrefixHeader.pch";
 				INFOPLIST_FILE = "ios-vision/SupportFiles/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
