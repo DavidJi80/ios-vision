@@ -12,6 +12,7 @@
 
 @property (nonatomic,strong) UIImageView *coverImageView;   //封面
 @property (strong,nonatomic) UIButton *stillImageBtn;
+@property (strong,nonatomic) UIButton *detectHumanBtn;
 
 @end
 
@@ -40,6 +41,14 @@
         make.right.equalTo(self.view).offset(-10);
         make.height.equalTo(40);
     }];
+    
+    [self.view addSubview:self.detectHumanBtn];
+    [self.detectHumanBtn makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.stillImageBtn.bottom).offset(10);
+        make.left.equalTo(self.view).offset(10);
+        make.right.equalTo(self.view).offset(-10);
+        make.height.equalTo(40);
+    }];
 }
 
 #pragma mark - Lazy init
@@ -50,7 +59,7 @@
         imageView.backgroundColor=UIColor.lightGrayColor;
         imageView.contentMode=UIViewContentModeScaleAspectFit;
         imageView.clipsToBounds=YES;
-        imageView.image=[UIImage imageNamed:@"头像"];
+//        imageView.image=[UIImage imageNamed:@"头像"];
         _coverImageView=imageView;
     }
     return _coverImageView;
@@ -60,7 +69,7 @@
     if (!_stillImageBtn) {
         UIButton *button = [[UIButton alloc]init];
         [button setBackgroundImage:nil forState:UIControlStateNormal];
-        [button setTitle:@"Detecting Objects in Still Images" forState:UIControlStateNormal];
+        [button setTitle:@"Detecting Face & Landmark in Still Images" forState:UIControlStateNormal];
         [button addTarget:self action:@selector(stillImageBtnAction:) forControlEvents:UIControlEventTouchUpInside];
         button.backgroundColor=UIColor.brownColor;
         _stillImageBtn = button;
@@ -68,47 +77,108 @@
     return _stillImageBtn;
 }
 
+- (UIButton *)detectHumanBtn{
+    if (!_detectHumanBtn) {
+        UIButton *button = [[UIButton alloc]init];
+        [button setBackgroundImage:nil forState:UIControlStateNormal];
+        [button setTitle:@"Detecting Human in Still Images" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(detectHumanBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        button.backgroundColor=UIColor.orangeColor;
+        _detectHumanBtn = button;
+    }
+    return _detectHumanBtn;
+}
+
 #pragma mark - Action
 
 -(void)stillImageBtnAction:(UIButton*)btn{
-    CGImageRef cgImage=[UIImage imageNamed:@"头像"].CGImage;
-    
-    
+    //1. VNImageRequestHandler
+    UIImage *image=[UIImage imageNamed:@"头像"];
+    self.coverImageView.image=image;
+    CGImageRef cgImage=image.CGImage;
     VNImageRequestHandler *imageRequestHandler=[[VNImageRequestHandler alloc]initWithCGImage:cgImage orientation:kCGImagePropertyOrientationUp options:@{}];
     
+    //2. VNRequest
+    //2.1. VNDetectFaceRectanglesRequest
     VNDetectFaceRectanglesRequest *faceRectRequest=[[VNDetectFaceRectanglesRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
-        
+        for(VNObservation *observation in request.results){
+            if ([observation isKindOfClass:VNFaceObservation.class]){
+                VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self drawRectWithBoundingBox:faceObserv.boundingBox cgImage:cgImage];
+                });
+            }
+        }
     }];
     
+    //2.2. VNDetectFaceLandmarksRequest
+    VNDetectFaceLandmarksRequest *faceLandmarkRequest=[[VNDetectFaceLandmarksRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        for(VNObservation *observation in request.results){
+            if ([observation isKindOfClass:VNFaceObservation.class]){
+                VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
+                VNFaceLandmarks2D *landmarks=faceObserv.landmarks;
+                NSLog(@"confidence:%f",landmarks.confidence);
+                VNFaceLandmarkRegion2D *faceContour=landmarks.faceContour;
+                NSLog(@"faceContour count:%lu",(unsigned long)faceContour.pointCount);
+            }
+        }
+    }];
+    
+    //2.3. VNDetectFaceCaptureQualityRequest
+    VNDetectFaceCaptureQualityRequest *faceCaptureQualityRequest=[[VNDetectFaceCaptureQualityRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        for(VNObservation *observation in request.results){
+            if ([observation isKindOfClass:VNFaceObservation.class]){
+                VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
+                NSLog(@"faceCaptureQuality:%@",faceObserv.faceCaptureQuality);
+            }
+        }
+    }];
+    
+    //3. Perform Requests
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError *error;
-        if ([imageRequestHandler performRequests:@[faceRectRequest] error:&error]){
-            for(VNObservation *observation in faceRectRequest.results){
-                if ([observation isKindOfClass:VNFaceObservation.class]){
-                    VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
-                    NSLog(@"roll:%@,yaw:%@,faceCaptureQuality:%@",faceObserv.roll,faceObserv.yaw,faceObserv.faceCaptureQuality);
-                    NSLog(@"BoundingBox:[%f,%f,%f,%f]",
-                          faceObserv.boundingBox.origin.x,
-                          faceObserv.boundingBox.origin.y,
-                          faceObserv.boundingBox.size.width,
-                          faceObserv.boundingBox.size.height);
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self drawFaceWithBoundingBox:faceObserv.boundingBox cgImage:cgImage];
-                    });
-                    
-                    
-                }
-            }
+        if ([imageRequestHandler performRequests:@[faceRectRequest,faceLandmarkRequest,faceCaptureQualityRequest] error:&error]){
+            
         }else{
             NSLog(@"%@",error.localizedDescription);
         }
     });
 }
 
+-(void)detectHumanBtnAction:(UIButton*)btn{
+    //1. VNImageRequestHandler
+    UIImage *image=[UIImage imageNamed:@"人像"];
+    self.coverImageView.image=image;
+    CGImageRef cgImage=image.CGImage;
+    VNImageRequestHandler *imageRequestHandler=[[VNImageRequestHandler alloc]initWithCGImage:cgImage orientation:kCGImagePropertyOrientationUp options:@{}];
+    
+    //2. VNDetectHumanRectanglesRequest
+    VNDetectHumanRectanglesRequest *humanRectanglesRequest=[[VNDetectHumanRectanglesRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        for(VNObservation *observation in request.results){
+            if ([observation isKindOfClass:VNDetectedObjectObservation.class]){
+                VNDetectedObjectObservation *faceObserv=(VNDetectedObjectObservation *)observation;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self drawRectWithBoundingBox:faceObserv.boundingBox cgImage:cgImage];
+                });
+            }
+        }
+    }];
+    
+    //3. Perform Requests
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *error;
+        if ([imageRequestHandler performRequests:@[humanRectanglesRequest] error:&error]){
+            
+        }else{
+            NSLog(@"%@",error.localizedDescription);
+        }
+    });
+    
+}
+
 #pragma mark - Function
 
--(void)drawFaceWithBoundingBox:(CGRect)boundingBox cgImage:(CGImageRef)cgImage{
+-(void)drawRectWithBoundingBox:(CGRect)boundingBox cgImage:(CGImageRef)cgImage{
     CGFloat imgWidth = CGImageGetWidth(cgImage);
     CGFloat imgHeight = CGImageGetHeight(cgImage);
     CGRect imgBoundingBox = VNImageRectForNormalizedRect(boundingBox,imgWidth,imgHeight);
@@ -132,6 +202,10 @@
     shapeLayer.path=facePath.CGPath;
     shapeLayer.strokeColor=UIColor.greenColor.CGColor;
     shapeLayer.fillColor=UIColor.clearColor.CGColor;
+    
+    for(CALayer *subLayer in self.coverImageView.layer.sublayers){
+        [subLayer removeFromSuperlayer];
+    }
     [self.coverImageView.layer addSublayer:shapeLayer];
 }
 
