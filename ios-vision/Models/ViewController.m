@@ -6,6 +6,7 @@
 //
 
 #import "ViewController.h"
+#import "StillImageVC.h"
 
 @interface ViewController ()
 
@@ -21,6 +22,7 @@
 }
 
 #pragma mark - BaseSet
+
 - (void)configBaseUI{
     [self.view addSubview:self.stillImageBtn];
     [self.stillImageBtn makeConstraints:^(MASConstraintMaker *make) {
@@ -45,8 +47,11 @@
     return _stillImageBtn;
 }
 
+#pragma mark - Action
+
 -(void)stillImageBtnAction:(UIButton*)btn{
-    
+    StillImageVC *vc=[StillImageVC new];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 

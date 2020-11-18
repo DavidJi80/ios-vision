@@ -12,6 +12,7 @@
 		0408F0CC2564000A00EF467E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0408F0CB2564000A00EF467E /* Assets.xcassets */; };
 		0408F0CF2564000A00EF467E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0408F0CD2564000A00EF467E /* LaunchScreen.storyboard */; };
 		0408F0D22564000A00EF467E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0408F0D12564000A00EF467E /* main.m */; };
+		04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DBAFD22564B17900152EC7 /* StillImageVC.m */; };
 		1308304BF70439FA6503404B /* Pods_ios_vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3608B14A8270749440E11F /* Pods_ios_vision.framework */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +27,8 @@
 		0408F0D02564000A00EF467E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0408F0D12564000A00EF467E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		0408F0EB256406C800EF467E /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		04DBAFD12564B17900152EC7 /* StillImageVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StillImageVC.h; sourceTree = "<group>"; };
+		04DBAFD22564B17900152EC7 /* StillImageVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StillImageVC.m; sourceTree = "<group>"; };
 		09EF4A2336A8983BB36C1872 /* Pods-ios-vision.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.debug.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.debug.xcconfig"; sourceTree = "<group>"; };
 		1B3608B14A8270749440E11F /* Pods_ios_vision.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ios_vision.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EE313CAE647EC6A3D6CDEEB /* Pods-ios-vision.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.release.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.release.xcconfig"; sourceTree = "<group>"; };
@@ -87,6 +90,7 @@
 		0408F0E72564037A00EF467E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				04DBAFD02564B15500152EC7 /* StillImage */,
 				0408F0C52564000700EF467E /* ViewController.h */,
 				0408F0C62564000700EF467E /* ViewController.m */,
 			);
@@ -99,6 +103,15 @@
 				0408F0EB256406C800EF467E /* PrefixHeader.pch */,
 			);
 			path = Define;
+			sourceTree = "<group>";
+		};
+		04DBAFD02564B15500152EC7 /* StillImage */ = {
+			isa = PBXGroup;
+			children = (
+				04DBAFD12564B17900152EC7 /* StillImageVC.h */,
+				04DBAFD22564B17900152EC7 /* StillImageVC.m */,
+			);
+			path = StillImage;
 			sourceTree = "<group>";
 		};
 		536245F7E235E50B53B9BC3B /* Frameworks */ = {
@@ -231,6 +244,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0408F0C72564000700EF467E /* ViewController.m in Sources */,
+				04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */,
 				0408F0C12564000700EF467E /* AppDelegate.m in Sources */,
 				0408F0D22564000A00EF467E /* main.m in Sources */,
 			);
@@ -372,6 +386,7 @@
 				DEVELOPMENT_TEAM = 2WUZ4595W7;
 				GCC_PREFIX_HEADER = "ios-vision/Define/PrefixHeader.pch";
 				INFOPLIST_FILE = "ios-vision/SupportFiles/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -392,6 +407,7 @@
 				DEVELOPMENT_TEAM = 2WUZ4595W7;
 				GCC_PREFIX_HEADER = "ios-vision/Define/PrefixHeader.pch";
 				INFOPLIST_FILE = "ios-vision/SupportFiles/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
