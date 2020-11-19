@@ -101,27 +101,10 @@
     //2. VNRequest
     //2.1. VNDetectFaceRectanglesRequest
     VNDetectFaceRectanglesRequest *faceRectRequest=[[VNDetectFaceRectanglesRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
-        for(VNObservation *observation in request.results){
-            if ([observation isKindOfClass:VNFaceObservation.class]){
-                VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self drawRectWithBoundingBox:faceObserv.boundingBox cgImage:cgImage];
-                });
-            }
-        }
     }];
     
     //2.2. VNDetectFaceLandmarksRequest
     VNDetectFaceLandmarksRequest *faceLandmarkRequest=[[VNDetectFaceLandmarksRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
-        for(VNObservation *observation in request.results){
-            if ([observation isKindOfClass:VNFaceObservation.class]){
-                VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
-                VNFaceLandmarks2D *landmarks=faceObserv.landmarks;
-                NSLog(@"confidence:%f",landmarks.confidence);
-                VNFaceLandmarkRegion2D *faceContour=landmarks.faceContour;
-                NSLog(@"faceContour count:%lu",(unsigned long)faceContour.pointCount);
-            }
-        }
     }];
     
     //2.3. VNDetectFaceCaptureQualityRequest
@@ -138,7 +121,38 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError *error;
         if ([imageRequestHandler performRequests:@[faceRectRequest,faceLandmarkRequest,faceCaptureQualityRequest] error:&error]){
+            // faceRectRequest
+            CGRect faceBoundingBox=VNNormalizedIdentityRect;
+            for(VNObservation *observation in faceRectRequest.results){
+                if ([observation isKindOfClass:VNFaceObservation.class]){
+                    VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
+                    faceBoundingBox=faceObserv.boundingBox;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self drawRectWithBoundingBox:faceBoundingBox cgImage:cgImage];
+                    });
+                }
+            }
+            // faceLandmarkRequest
+            CGFloat imgWidth = CGImageGetWidth(cgImage);
+            CGFloat imgHeight = CGImageGetHeight(cgImage);
+            CGRect imgBoundingBox = VNImageRectForNormalizedRect(faceBoundingBox,imgWidth,imgHeight);
             
+            for(VNObservation *observation in faceLandmarkRequest.results){
+                if ([observation isKindOfClass:VNFaceObservation.class]){
+                    VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
+                    VNFaceLandmarks2D *landmarks=faceObserv.landmarks;
+                    NSLog(@"confidence:%f",landmarks.confidence);
+                    VNFaceLandmarkRegion2D *faceContour=landmarks.faceContour;
+                    NSLog(@"faceContour count:%lu",(unsigned long)faceContour.pointCount);
+                    for (NSUInteger i=0;i<faceContour.pointCount;i++){
+                        CGPoint point=faceContour.normalizedPoints[i];
+                        NSLog(@"Point%d:[%f,%f]",(int)i,point.x,point.y);
+                        vector_float2 faceLandmarkPoint={point.x,point.y};
+                        CGPoint imagePoint=VNImagePointForFaceLandmarkPoint(faceLandmarkPoint, faceBoundingBox, imgBoundingBox.size.width, imgBoundingBox.size.height);
+                        NSLog(@"Point%d:[%f,%f]",(int)i,imagePoint.x,imagePoint.y);
+                    }
+                }
+            }
         }else{
             NSLog(@"%@",error.localizedDescription);
         }
