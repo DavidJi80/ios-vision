@@ -127,32 +127,56 @@
                 if ([observation isKindOfClass:VNFaceObservation.class]){
                     VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
                     faceBoundingBox=faceObserv.boundingBox;
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self drawRectWithBoundingBox:faceBoundingBox cgImage:cgImage];
-                    });
                 }
             }
-            // faceLandmarkRequest
-            CGFloat imgWidth = CGImageGetWidth(cgImage);
-            CGFloat imgHeight = CGImageGetHeight(cgImage);
-            CGRect imgBoundingBox = VNImageRectForNormalizedRect(faceBoundingBox,imgWidth,imgHeight);
-            
+            NSMutableArray<NSArray*>* landmarksArg=[NSMutableArray array];
             for(VNObservation *observation in faceLandmarkRequest.results){
                 if ([observation isKindOfClass:VNFaceObservation.class]){
                     VNFaceObservation *faceObserv=(VNFaceObservation *)observation;
                     VNFaceLandmarks2D *landmarks=faceObserv.landmarks;
                     NSLog(@"confidence:%f",landmarks.confidence);
+                    
                     VNFaceLandmarkRegion2D *faceContour=landmarks.faceContour;
-                    NSLog(@"faceContour count:%lu",(unsigned long)faceContour.pointCount);
-                    for (NSUInteger i=0;i<faceContour.pointCount;i++){
-                        CGPoint point=faceContour.normalizedPoints[i];
-                        NSLog(@"Point%d:[%f,%f]",(int)i,point.x,point.y);
-                        vector_float2 faceLandmarkPoint={point.x,point.y};
-                        CGPoint imagePoint=VNImagePointForFaceLandmarkPoint(faceLandmarkPoint, faceBoundingBox, imgBoundingBox.size.width, imgBoundingBox.size.height);
-                        NSLog(@"Point%d:[%f,%f]",(int)i,imagePoint.x,imagePoint.y);
+                    VNFaceLandmarkRegion2D *leftEye=landmarks.leftEye;
+                    VNFaceLandmarkRegion2D *rightEye=landmarks.rightEye;
+                    VNFaceLandmarkRegion2D *leftEyebrow=landmarks.leftEyebrow;
+                    VNFaceLandmarkRegion2D *rightEyebrow=landmarks.rightEyebrow;
+                    VNFaceLandmarkRegion2D *nose=landmarks.nose;
+                    VNFaceLandmarkRegion2D *noseCrest=landmarks.noseCrest;
+                    VNFaceLandmarkRegion2D *medianLine=landmarks.medianLine;
+                    VNFaceLandmarkRegion2D *outerLips=landmarks.outerLips;
+                    VNFaceLandmarkRegion2D *innerLips=landmarks.innerLips;
+                    VNFaceLandmarkRegion2D *leftPupil=landmarks.leftPupil;
+                    VNFaceLandmarkRegion2D *rightPupil=landmarks.rightPupil;
+                    
+                    NSMutableArray *landmarkRegionArg=[NSMutableArray array];
+                    [landmarkRegionArg addObject:faceContour];
+                    [landmarkRegionArg addObject:leftEye];
+                    [landmarkRegionArg addObject:rightEye];
+                    [landmarkRegionArg addObject:leftEyebrow];
+                    [landmarkRegionArg addObject:rightEyebrow];
+                    [landmarkRegionArg addObject:nose];
+                    [landmarkRegionArg addObject:noseCrest];
+                    [landmarkRegionArg addObject:medianLine];
+                    [landmarkRegionArg addObject:outerLips];
+                    [landmarkRegionArg addObject:innerLips];
+                    [landmarkRegionArg addObject:leftPupil];
+                    [landmarkRegionArg addObject:rightPupil];
+                    
+                    for(VNFaceLandmarkRegion2D *landmarkRegion in landmarkRegionArg){
+                        NSMutableArray<NSValue*> *landmarkPointArg=[NSMutableArray array];
+                        for (NSUInteger i=0;i<landmarkRegion.pointCount;i++){
+                            CGPoint point=landmarkRegion.normalizedPoints[i];
+                            [landmarkPointArg addObject:[NSValue valueWithCGPoint:point]];
+                        }
+                        [landmarksArg addObject:landmarkPointArg];
                     }
+
                 }
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self drawAtLayer:self.coverImageView.layer cgImage:cgImage faceBoundingBox:faceBoundingBox landmarksArg:landmarksArg];
+            });
         }else{
             NSLog(@"%@",error.localizedDescription);
         }
@@ -192,6 +216,55 @@
 
 #pragma mark - Function
 
+-(void)drawAtLayer:(CALayer*)layer cgImage:(CGImageRef)cgImage faceBoundingBox:(CGRect)faceBoundingBox landmarksArg:(NSArray*)landmarksArg{
+    CGFloat imgWidth = CGImageGetWidth(cgImage);
+    CGFloat imgHeight = CGImageGetHeight(cgImage);
+    CGRect layerBound = layer.bounds;
+    CGFloat ratio=1.0f;
+    if ((imgWidth/imgHeight)<(layerBound.size.width/layerBound.size.height)){
+        ratio=layerBound.size.height/imgHeight;
+    }else{
+        ratio=layerBound.size.width/imgWidth;
+    }
+    CGRect shapeLayerBound=CGRectMake(0, 0, imgWidth*ratio, imgHeight*ratio);
+    CAShapeLayer *shapeLayer=[CAShapeLayer layer];
+    shapeLayer.bounds=shapeLayerBound;
+    shapeLayer.position=CGPointMake(layerBound.size.width/2, layerBound.size.height/2);
+    
+    CGRect imgFaceRect = VNImageRectForNormalizedRect(faceBoundingBox,shapeLayerBound.size.width,shapeLayerBound.size.height);
+    CGRect layerFaceRect = [self layerRectFromImageRect:imgFaceRect layerHeight:shapeLayerBound.size.height];
+    UIBezierPath *path=[UIBezierPath bezierPath];
+    [path moveToPoint:CGPointMake(layerFaceRect.origin.x, layerFaceRect.origin.y)];
+    [path addLineToPoint:CGPointMake(layerFaceRect.origin.x+layerFaceRect.size.width, layerFaceRect.origin.y)];
+    [path addLineToPoint:CGPointMake(layerFaceRect.origin.x+layerFaceRect.size.width, layerFaceRect.origin.y+layerFaceRect.size.height)];
+    [path addLineToPoint:CGPointMake(layerFaceRect.origin.x, layerFaceRect.origin.y+layerFaceRect.size.height)];
+    [path addLineToPoint:CGPointMake(layerFaceRect.origin.x, layerFaceRect.origin.y)];
+    
+    for(NSArray * pointsArg in landmarksArg){
+        for(int i=0;i<pointsArg.count;i++){
+            NSValue * pointValue = pointsArg[i];
+            CGPoint normalizedPoint=[pointValue CGPointValue];
+            vector_float2 pointVector={normalizedPoint.x,normalizedPoint.y};
+            CGPoint imageLandmarkPoint=VNImagePointForFaceLandmarkPoint(pointVector, faceBoundingBox, shapeLayerBound.size.width, shapeLayerBound.size.height);
+            CGPoint layerLMPoint=CGPointMake(imageLandmarkPoint.x, shapeLayerBound.size.height-imageLandmarkPoint.y);
+            if (i==0){
+                [path moveToPoint:layerLMPoint];
+            }else{
+                [path addLineToPoint:layerLMPoint];
+            }
+        }
+    }
+    
+    shapeLayer.path=path.CGPath;
+    shapeLayer.strokeColor=UIColor.greenColor.CGColor;
+    shapeLayer.fillColor=UIColor.clearColor.CGColor;
+    [layer addSublayer:shapeLayer];
+}
+
+-(CGRect)layerRectFromImageRect:(CGRect)imageRect layerHeight:(CGFloat)layerHeight{
+    return CGRectMake(imageRect.origin.x,(layerHeight-imageRect.origin.y-imageRect.size.height),imageRect.size.width,imageRect.size.height);
+}
+
 -(void)drawRectWithBoundingBox:(CGRect)boundingBox cgImage:(CGImageRef)cgImage{
     CGFloat imgWidth = CGImageGetWidth(cgImage);
     CGFloat imgHeight = CGImageGetHeight(cgImage);
@@ -200,7 +273,6 @@
     CGFloat ratio=1.0f;
     if ((imgWidth/imgHeight)<(layerBound.size.width/layerBound.size.height)){
         ratio=layerBound.size.height/imgHeight;
-        
     }else{
         ratio=layerBound.size.width/imgWidth;
     }
