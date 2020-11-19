@@ -39,7 +39,7 @@
     if (!_stillImageBtn) {
         UIButton *button = [[UIButton alloc]init];
         [button setBackgroundImage:nil forState:UIControlStateNormal];
-        [button setTitle:@"Still Image Analysis" forState:UIControlStateNormal];
+        [button setTitle:@"7. Face and Body Detection" forState:UIControlStateNormal];
         [button addTarget:self action:@selector(stillImageBtnAction:) forControlEvents:UIControlEventTouchUpInside];
         button.backgroundColor=UIColor.brownColor;
         _stillImageBtn = button;

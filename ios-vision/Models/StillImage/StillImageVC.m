@@ -92,8 +92,17 @@
 #pragma mark - Action
 
 -(void)stillImageBtnAction:(UIButton*)btn{
+    btn.selected=!btn.selected;
+    for(CALayer *subLayer in self.coverImageView.layer.sublayers){
+        [subLayer removeFromSuperlayer];
+    }
     //1. VNImageRequestHandler
-    UIImage *image=[UIImage imageNamed:@"头像"];
+    UIImage *image;
+    if (btn.selected){
+        image=[UIImage imageNamed:@"头像"];
+    }else{
+        image=[UIImage imageNamed:@"头像2"];
+    }
     self.coverImageView.image=image;
     CGImageRef cgImage=image.CGImage;
     VNImageRequestHandler *imageRequestHandler=[[VNImageRequestHandler alloc]initWithCGImage:cgImage orientation:kCGImagePropertyOrientationUp options:@{}];
@@ -184,8 +193,17 @@
 }
 
 -(void)detectHumanBtnAction:(UIButton*)btn{
+    btn.selected=!btn.selected;
+    for(CALayer *subLayer in self.coverImageView.layer.sublayers){
+        [subLayer removeFromSuperlayer];
+    }
     //1. VNImageRequestHandler
-    UIImage *image=[UIImage imageNamed:@"人像"];
+    UIImage *image;
+    if (btn.selected){
+        image=[UIImage imageNamed:@"人像"];
+    }else{
+        image=[UIImage imageNamed:@"人像2"];
+    }
     self.coverImageView.image=image;
     CGImageRef cgImage=image.CGImage;
     VNImageRequestHandler *imageRequestHandler=[[VNImageRequestHandler alloc]initWithCGImage:cgImage orientation:kCGImagePropertyOrientationUp options:@{}];
@@ -241,6 +259,7 @@
     [path addLineToPoint:CGPointMake(layerFaceRect.origin.x, layerFaceRect.origin.y)];
     
     for(NSArray * pointsArg in landmarksArg){
+        CGPoint point0=CGPointZero;
         for(int i=0;i<pointsArg.count;i++){
             NSValue * pointValue = pointsArg[i];
             CGPoint normalizedPoint=[pointValue CGPointValue];
@@ -248,11 +267,13 @@
             CGPoint imageLandmarkPoint=VNImagePointForFaceLandmarkPoint(pointVector, faceBoundingBox, shapeLayerBound.size.width, shapeLayerBound.size.height);
             CGPoint layerLMPoint=CGPointMake(imageLandmarkPoint.x, shapeLayerBound.size.height-imageLandmarkPoint.y);
             if (i==0){
+                point0=layerLMPoint;
                 [path moveToPoint:layerLMPoint];
             }else{
                 [path addLineToPoint:layerLMPoint];
             }
         }
+        [path addLineToPoint:point0];
     }
     
     shapeLayer.path=path.CGPath;
@@ -289,9 +310,6 @@
     shapeLayer.strokeColor=UIColor.greenColor.CGColor;
     shapeLayer.fillColor=UIColor.clearColor.CGColor;
     
-    for(CALayer *subLayer in self.coverImageView.layer.sublayers){
-        [subLayer removeFromSuperlayer];
-    }
     [self.coverImageView.layer addSublayer:shapeLayer];
 }
 
