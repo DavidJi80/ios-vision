@@ -13,6 +13,7 @@
 		0408F0CF2564000A00EF467E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0408F0CD2564000A00EF467E /* LaunchScreen.storyboard */; };
 		0408F0D22564000A00EF467E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0408F0D12564000A00EF467E /* main.m */; };
 		04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DBAFD22564B17900152EC7 /* StillImageVC.m */; };
+		04E6C4E9256905700063EA51 /* SaliencyVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C4E8256905700063EA51 /* SaliencyVC.m */; };
 		1308304BF70439FA6503404B /* Pods_ios_vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3608B14A8270749440E11F /* Pods_ios_vision.framework */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		0408F0EB256406C800EF467E /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		04DBAFD12564B17900152EC7 /* StillImageVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StillImageVC.h; sourceTree = "<group>"; };
 		04DBAFD22564B17900152EC7 /* StillImageVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StillImageVC.m; sourceTree = "<group>"; };
+		04E6C4E7256905700063EA51 /* SaliencyVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SaliencyVC.h; sourceTree = "<group>"; };
+		04E6C4E8256905700063EA51 /* SaliencyVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SaliencyVC.m; sourceTree = "<group>"; };
 		09EF4A2336A8983BB36C1872 /* Pods-ios-vision.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.debug.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.debug.xcconfig"; sourceTree = "<group>"; };
 		1B3608B14A8270749440E11F /* Pods_ios_vision.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ios_vision.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EE313CAE647EC6A3D6CDEEB /* Pods-ios-vision.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios-vision.release.xcconfig"; path = "Target Support Files/Pods-ios-vision/Pods-ios-vision.release.xcconfig"; sourceTree = "<group>"; };
@@ -90,7 +93,8 @@
 		0408F0E72564037A00EF467E /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				04DBAFD02564B15500152EC7 /* StillImage */,
+				04E6C4E62569054C0063EA51 /* 4.Saliency */,
+				04DBAFD02564B15500152EC7 /* 7.StillImage */,
 				0408F0C52564000700EF467E /* ViewController.h */,
 				0408F0C62564000700EF467E /* ViewController.m */,
 			);
@@ -105,13 +109,22 @@
 			path = Define;
 			sourceTree = "<group>";
 		};
-		04DBAFD02564B15500152EC7 /* StillImage */ = {
+		04DBAFD02564B15500152EC7 /* 7.StillImage */ = {
 			isa = PBXGroup;
 			children = (
 				04DBAFD12564B17900152EC7 /* StillImageVC.h */,
 				04DBAFD22564B17900152EC7 /* StillImageVC.m */,
 			);
-			path = StillImage;
+			path = 7.StillImage;
+			sourceTree = "<group>";
+		};
+		04E6C4E62569054C0063EA51 /* 4.Saliency */ = {
+			isa = PBXGroup;
+			children = (
+				04E6C4E7256905700063EA51 /* SaliencyVC.h */,
+				04E6C4E8256905700063EA51 /* SaliencyVC.m */,
+			);
+			path = 4.Saliency;
 			sourceTree = "<group>";
 		};
 		536245F7E235E50B53B9BC3B /* Frameworks */ = {
@@ -247,6 +260,7 @@
 				04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */,
 				0408F0C12564000700EF467E /* AppDelegate.m in Sources */,
 				0408F0D22564000A00EF467E /* main.m in Sources */,
+				04E6C4E9256905700063EA51 /* SaliencyVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

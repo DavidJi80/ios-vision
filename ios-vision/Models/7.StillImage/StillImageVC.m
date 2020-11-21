@@ -10,7 +10,7 @@
 
 @interface StillImageVC ()
 
-@property (nonatomic,strong) UIImageView *coverImageView;   //封面
+@property (nonatomic,strong) UIImageView *coverImageView;
 @property (strong,nonatomic) UIButton *stillImageBtn;
 @property (strong,nonatomic) UIButton *detectHumanBtn;
 
