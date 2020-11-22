@@ -15,6 +15,7 @@
 @property (strong,nonatomic) UIButton *baseAttentionBtn;
 @property (strong,nonatomic) UIButton *baseObjectBtn;
 @property (nonatomic,strong) UIImageView *coverImageView;
+@property (nonatomic,strong) UIImageView *outputImageView;
 
 @end
 
@@ -35,6 +36,14 @@
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
         make.bottom.equalTo(self.view).offset(-150);
+    }];
+    
+    [self.view addSubview:self.outputImageView];
+    [self.outputImageView makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view).offset(100);
+        make.left.equalTo(self.view).offset(10);
+        make.width.equalTo(100);
+        make.height.equalTo(100);
     }];
     
     [self.view addSubview:self.baseAttentionBtn];
@@ -65,6 +74,17 @@
         _coverImageView=imageView;
     }
     return _coverImageView;
+}
+
+- (UIImageView *)outputImageView{
+    if (!_outputImageView) {
+        UIImageView *imageView=[UIImageView new];
+//        imageView.backgroundColor=UIColor.greenColor;
+        imageView.contentMode=UIViewContentModeScaleAspectFit;
+        imageView.clipsToBounds=YES;
+        _outputImageView=imageView;
+    }
+    return _outputImageView;
 }
 
 - (UIButton *)baseAttentionBtn{
@@ -103,7 +123,6 @@
         _imgIndex=0;
     }
     UIImage *image;
-    
     switch (_imgIndex) {
         case 0:
             image=[UIImage imageNamed:@"头像"];
@@ -129,13 +148,16 @@
     }
     //
     VNImageRequestHandler *imageRequestHandler=[[VNImageRequestHandler alloc]initWithCGImage:cgImage orientation:kCGImagePropertyOrientationUp options:@{}];
+    
     //3. Perform Requests
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSError *error;
         if ([imageRequestHandler performRequests:@[request] error:&error]){
             for(VNObservation *observation in request.results){
                 if ([observation isKindOfClass:VNSaliencyImageObservation.class]){
                     VNSaliencyImageObservation *saliencyObservation=(VNSaliencyImageObservation *)observation;
+//                    NSLog(@"%@,%@",saliencyObservation.featureName);
                     NSArray<VNRectangleObservation *> *salientObjects=saliencyObservation.salientObjects;
                     NSMutableArray * rectsArg = [NSMutableArray array];
                     for(VNRectangleObservation * rectangleObs in salientObjects){
@@ -146,9 +168,18 @@
                         [oneRectArg addObject:[NSValue valueWithCGPoint:rectangleObs.topLeft]];
                         [rectsArg addObject:oneRectArg];
                     }
+                    
+                    
+                    
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self drawAtLayer:self.coverImageView.layer cgImage:cgImage rectsArg:rectsArg];
+                        [weakSelf drawAtLayer:self.coverImageView.layer cgImage:cgImage rectsArg:rectsArg];
+                        UIImage *image=[self convertToImageFromCVImageBufferRef:saliencyObservation.pixelBuffer];
+                        [weakSelf.outputImageView setImage:image];
                     });
+                    
+                        
+                        
+                   
                 }
             }
         }
@@ -195,6 +226,33 @@
     shapeLayer.fillColor=UIColor.clearColor.CGColor;
     [layer addSublayer:shapeLayer];
     
+}
+
+-(UIImage *) convertToImageFromCVImageBufferRef:( CVImageBufferRef)pixelBuffer{
+    CVImageBufferRef imageBuffer =pixelBuffer;
+    /*Lock the image buffer*/
+    CVPixelBufferLockBaseAddress(imageBuffer,0);
+    /*Get information about the image*/
+    uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+
+    /*We unlock the  image buffer*/
+    CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+
+    /*Create a CGImageRef from the CVImageBufferRef*/
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef newContext = CGBitmapContextCreate(baseAddress, width, height, 8, bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+    CGImageRef newImage = CGBitmapContextCreateImage(newContext);
+
+    /*We release some components*/
+    CGContextRelease(newContext);
+    CGColorSpaceRelease(colorSpace);
+    
+    UIImage *image=[UIImage imageWithCGImage:newImage];
+    
+    return image;
 }
 
 
