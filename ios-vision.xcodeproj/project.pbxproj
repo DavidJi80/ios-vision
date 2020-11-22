@@ -12,6 +12,7 @@
 		0408F0CC2564000A00EF467E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0408F0CB2564000A00EF467E /* Assets.xcassets */; };
 		0408F0CF2564000A00EF467E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0408F0CD2564000A00EF467E /* LaunchScreen.storyboard */; };
 		0408F0D22564000A00EF467E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0408F0D12564000A00EF467E /* main.m */; };
+		040BD3A5256A8BB20021558E /* BodyVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 040BD3A4256A8BB20021558E /* BodyVC.m */; };
 		04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DBAFD22564B17900152EC7 /* StillImageVC.m */; };
 		04E6C4E9256905700063EA51 /* SaliencyVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E6C4E8256905700063EA51 /* SaliencyVC.m */; };
 		1308304BF70439FA6503404B /* Pods_ios_vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B3608B14A8270749440E11F /* Pods_ios_vision.framework */; };
@@ -28,6 +29,8 @@
 		0408F0D02564000A00EF467E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0408F0D12564000A00EF467E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		0408F0EB256406C800EF467E /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		040BD3A3256A8BB20021558E /* BodyVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BodyVC.h; sourceTree = "<group>"; };
+		040BD3A4256A8BB20021558E /* BodyVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BodyVC.m; sourceTree = "<group>"; };
 		04DBAFD12564B17900152EC7 /* StillImageVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StillImageVC.h; sourceTree = "<group>"; };
 		04DBAFD22564B17900152EC7 /* StillImageVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StillImageVC.m; sourceTree = "<group>"; };
 		04E6C4E7256905700063EA51 /* SaliencyVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SaliencyVC.h; sourceTree = "<group>"; };
@@ -93,6 +96,7 @@
 		0408F0E72564037A00EF467E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				040BD3A2256A8B920021558E /* 8.Body */,
 				04E6C4E62569054C0063EA51 /* 4.Saliency */,
 				04DBAFD02564B15500152EC7 /* 7.StillImage */,
 				0408F0C52564000700EF467E /* ViewController.h */,
@@ -107,6 +111,15 @@
 				0408F0EB256406C800EF467E /* PrefixHeader.pch */,
 			);
 			path = Define;
+			sourceTree = "<group>";
+		};
+		040BD3A2256A8B920021558E /* 8.Body */ = {
+			isa = PBXGroup;
+			children = (
+				040BD3A3256A8BB20021558E /* BodyVC.h */,
+				040BD3A4256A8BB20021558E /* BodyVC.m */,
+			);
+			path = 8.Body;
 			sourceTree = "<group>";
 		};
 		04DBAFD02564B15500152EC7 /* 7.StillImage */ = {
@@ -256,6 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040BD3A5256A8BB20021558E /* BodyVC.m in Sources */,
 				0408F0C72564000700EF467E /* ViewController.m in Sources */,
 				04DBAFD32564B17900152EC7 /* StillImageVC.m in Sources */,
 				0408F0C12564000700EF467E /* AppDelegate.m in Sources */,

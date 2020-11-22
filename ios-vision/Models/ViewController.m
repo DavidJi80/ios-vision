@@ -8,11 +8,13 @@
 #import "ViewController.h"
 #import "StillImageVC.h"
 #import "SaliencyVC.h"
+#import "BodyVC.h"
 
 @interface ViewController ()
 
 @property (strong, nonatomic) UIButton *stillImageBtn;
 @property (strong, nonatomic) UIButton *saliencyBtn;
+@property (strong, nonatomic) UIButton *bodyBtn;
 
 @end
 
@@ -42,7 +44,13 @@
         make.height.equalTo(40);
     }];
     
-    
+    [self.view addSubview:self.bodyBtn];
+    [self.bodyBtn makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.stillImageBtn.bottom).offset(10);
+        make.left.equalTo(self.view).offset(10);
+        make.right.equalTo(self.view).offset(-10);
+        make.height.equalTo(40);
+    }];
 }
 
 #pragma mark - Lazy
@@ -63,12 +71,24 @@
     if (!_saliencyBtn) {
         UIButton *button = [[UIButton alloc]init];
         [button setBackgroundImage:nil forState:UIControlStateNormal];
-        [button setTitle:@"4. Cropping Images Using Saliency" forState:UIControlStateNormal];
+        [button setTitle:@"4. Saliency Analysis" forState:UIControlStateNormal];
         [button addTarget:self action:@selector(aliencyBtnAction:) forControlEvents:UIControlEventTouchUpInside];
         button.backgroundColor=UIColor.brownColor;
         _saliencyBtn = button;
     }
     return _saliencyBtn;
+}
+
+- (UIButton *)bodyBtn{
+    if (!_bodyBtn) {
+        UIButton *button = [[UIButton alloc]init];
+        [button setBackgroundImage:nil forState:UIControlStateNormal];
+        [button setTitle:@"8. Body and Hand Pose Detection" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(bodyBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        button.backgroundColor=UIColor.brownColor;
+        _bodyBtn = button;
+    }
+    return _bodyBtn;
 }
 
 #pragma mark - Action
@@ -80,6 +100,11 @@
 
 -(void)aliencyBtnAction:(UIButton*)btn{
     SaliencyVC *vc=[SaliencyVC new];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+-(void)bodyBtnAction:(UIButton*)btn{
+    BodyVC *vc=[BodyVC new];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
