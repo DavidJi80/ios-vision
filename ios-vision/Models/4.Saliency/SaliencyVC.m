@@ -169,17 +169,12 @@
                         [rectsArg addObject:oneRectArg];
                     }
                     
-                    
-                    
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weakSelf drawAtLayer:self.coverImageView.layer cgImage:cgImage rectsArg:rectsArg];
                         UIImage *image=[self convertToImageFromCVImageBufferRef:saliencyObservation.pixelBuffer];
                         [weakSelf.outputImageView setImage:image];
                     });
                     
-                        
-                        
-                   
                 }
             }
         }
