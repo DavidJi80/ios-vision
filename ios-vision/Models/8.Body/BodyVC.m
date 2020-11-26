@@ -152,7 +152,7 @@
                         [pointsArg addObject:[NSValue valueWithCGPoint:point.location]];
                     }
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self drawAtLayer:self.coverImageView.layer cgImage:cgImage pointsArg:pointsArg];
+                        [self drawAtLayer:self.coverImageView.layer cgImage:cgImage pointsArg:pointsArg groupsArg:nil];
                     });
                 }
             }
@@ -182,10 +182,10 @@
             image=[UIImage imageNamed:@"手"];
             break;
         case 1:
-            image=[UIImage imageNamed:@"手"];
+            image=[UIImage imageNamed:@"手2"];
             break;
         case 2:
-            image=[UIImage imageNamed:@"手"];
+            image=[UIImage imageNamed:@"手3"];
             break;
         default:
             image=[UIImage imageNamed:@"手4"];
@@ -200,6 +200,8 @@
     VNRequest *request;
     if (@available(iOS 14.0, *)) {
         request=[[VNDetectHumanHandPoseRequest alloc]initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+            NSMutableArray *pointsArg=[NSMutableArray array];
+            NSMutableArray *groupsArg=[NSMutableArray array];
             for(VNObservation *observation in request.results){
                 if ([observation isKindOfClass:VNHumanHandPoseObservation.class]){
                     VNHumanHandPoseObservation *pointsObservation=(VNHumanHandPoseObservation *)observation;
@@ -209,26 +211,40 @@
                     for (VNRecognizedPointGroupKey pointGroupKey in pointsObservation.availableGroupKeys){
                         NSLog(@"PointGroupKey:%@",pointGroupKey);
                     }
-                    for (VNHumanBodyPoseObservationJointName jointName in pointsObservation.availableJointNames){
+                    for (VNHumanHandPoseObservationJointName jointName in pointsObservation.availableJointNames){
                         NSLog(@"JointName:%@",jointName);
                     }
-                    for (VNHumanBodyPoseObservationJointsGroupName jointGroupName in pointsObservation.availableJointsGroupNames){
-                        NSLog(@"JointName:%@",jointGroupName);
+                    for (VNHumanHandPoseObservationJointsGroupName jointGroupName in pointsObservation.availableJointsGroupNames){
+                        
+                        NSDictionary<VNHumanHandPoseObservationJointName,VNRecognizedPoint *> *pointGroupDict=[pointsObservation recognizedPointsForJointsGroupName:jointGroupName error:nil];
+                        NSLog(@"JointGroupName:%@,%lu",jointGroupName,(unsigned long)pointGroupDict.count);
+                        if (pointGroupDict.count>4){
+                            continue;
+                        }
+                        
+                        NSMutableArray *groupArg=[NSMutableArray array];
+                        NSArray *keys = [pointGroupDict allKeys];
+                        for (int i = 0; i < keys.count; i++){
+                            VNHumanHandPoseObservationJointName key = [keys objectAtIndex: i];
+                            VNRecognizedPoint * point = [pointGroupDict objectForKey: key];
+                            [groupArg addObject:[NSValue valueWithCGPoint:point.location]];
+                            NSLog(@"{key:%@},{point:%@}",key,point);
+                        }
+                        [groupsArg addObject:groupArg];
                     }
                     NSDictionary<VNRecognizedPointKey,VNRecognizedPoint *> * pointDict=[pointsObservation recognizedPointsForGroupKey:VNRecognizedPointGroupKeyAll error:nil];
                     NSArray *keys = [pointDict allKeys];
-                    NSMutableArray *pointsArg=[NSMutableArray array];
                     for (int i = 0; i < keys.count; i++){
                         VNRecognizedPointKey key = [keys objectAtIndex: i];
                         VNRecognizedPoint * point = [pointDict objectForKey: key];
-                        NSLog (@"RecognizedPoint  Key:%@ , Point: { key:%@ , confidence:%f , point:[%f,%f] ,location:[%f,%f] }", key, point.identifier , point.confidence ,point.x,point.y, point.location.x, point.location.y);
+                        //NSLog (@"RecognizedPoint  Key:%@ , Point: { key:%@ , confidence:%f , point:[%f,%f] ,location:[%f,%f] }", key, point.identifier , point.confidence ,point.x,point.y, point.location.x, point.location.y);
                         [pointsArg addObject:[NSValue valueWithCGPoint:point.location]];
                     }
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self drawAtLayer:self.coverImageView.layer cgImage:cgImage pointsArg:pointsArg];
-                    });
                 }
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self drawAtLayer:self.coverImageView.layer cgImage:cgImage pointsArg:pointsArg groupsArg:groupsArg];
+            });
         }];
     }
     //3. Perform Requests
@@ -241,7 +257,7 @@
 
 #pragma mark - Function
 
--(void)drawAtLayer:(CALayer*)layer cgImage:(CGImageRef)cgImage pointsArg:(NSArray*)pointsArg{
+-(void)drawAtLayer:(CALayer*)layer cgImage:(CGImageRef)cgImage pointsArg:(NSArray*)pointsArg groupsArg:(NSArray*)groupsArg{
     CGFloat imgWidth = CGImageGetWidth(cgImage);
     CGFloat imgHeight = CGImageGetHeight(cgImage);
     CGRect layerBound = layer.bounds;
@@ -264,10 +280,26 @@
         [path moveToPoint:layerPoint];
         [path addArcWithCenter:layerPoint radius:2 startAngle:0 endAngle:M_PI * 2 clockwise:YES];
     }
+    
+    for(NSArray* pointsArg in groupsArg){
+        for(int i=0;i<pointsArg.count;i++){
+            NSValue * pointValue = pointsArg[i];
+            CGPoint normalizedPoint=[pointValue CGPointValue];
+            CGPoint imagePoint=VNImagePointForNormalizedPoint(normalizedPoint,shapeLayerBound.size.width,
+                                                              shapeLayerBound.size.height);
+            CGPoint layerPoint=CGPointMake(imagePoint.x, shapeLayerBound.size.height-imagePoint.y);
+            if (i==0){
+                [path moveToPoint:layerPoint];
+            }else{
+                [path addLineToPoint:layerPoint];
+            }
+        }
+    }
+    
     shapeLayer.path=path.CGPath;
     shapeLayer.strokeColor=UIColor.redColor.CGColor;
     shapeLayer.fillColor=UIColor.clearColor.CGColor;
-    shapeLayer.lineWidth=4;
+    shapeLayer.lineWidth=1;
     [layer addSublayer:shapeLayer];
 }
 
