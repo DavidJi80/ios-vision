@@ -109,9 +109,29 @@
                 if ([observation isKindOfClass:VNContoursObservation.class]){
                     VNContoursObservation *contoursObservation=(VNContoursObservation *)observation;
                     NSLog(@"%ld,%ld,%ld",(long)contoursObservation.contourCount,(long)contoursObservation.topLevelContours,contoursObservation.topLevelContours.count);
+                    
+                    NSMutableArray *groupsArg=[NSMutableArray array];
+                    
                     for(VNContour *contour in contoursObservation.topLevelContours){
-                        
+                        NSLog(@"轮廓的高宽比:%f",contour.aspectRatio);
+                        NSLog(@"索引路径:%@",contour.indexPath);
+                        NSLog(@"轮廓线点的数量:%ld",contour.pointCount);
+                        NSLog(@"子轮廓的数量:%ld",contour.childContourCount);
+                        VNContour *simpleContour=[contour polygonApproximationWithEpsilon:0.01 error:nil];
+                        NSLog(@"轮廓线点的数量:%ld",simpleContour.pointCount);
+                        NSMutableArray *pointsArg=[NSMutableArray array];
+                        for(int i=0;i<simpleContour.pointCount;i++){
+                            simd_float2 simd_point=simpleContour.normalizedPoints[i];
+                            NSLog(@"%f,%f",simd_point[0],simd_point[1]);
+                            [pointsArg addObject:[NSValue valueWithCGPoint:CGPointMake(simd_point[0], simd_point[1])]];
+                        }
+                        [groupsArg addObject:pointsArg];
                     }
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self drawAtLayer:self.coverImageView.layer cgImage:cgImage groupsArg:groupsArg];
+                    });
+                    
                 }
             }
         }];
@@ -123,5 +143,47 @@
         }
     });
 }
+
+#pragma mark - Function
+
+-(void)drawAtLayer:(CALayer*)layer cgImage:(CGImageRef)cgImage groupsArg:(NSArray*)groupsArg{
+    CGFloat imgWidth = CGImageGetWidth(cgImage);
+    CGFloat imgHeight = CGImageGetHeight(cgImage);
+    CGRect layerBound = layer.bounds;
+    CGFloat ratio=1.0f;
+    if ((imgWidth/imgHeight)<(layerBound.size.width/layerBound.size.height)){
+        ratio=layerBound.size.height/imgHeight;
+    }else{
+        ratio=layerBound.size.width/imgWidth;
+    }
+    CGRect shapeLayerBound=CGRectMake(0, 0, imgWidth*ratio, imgHeight*ratio);
+    CAShapeLayer *shapeLayer=[CAShapeLayer layer];
+    shapeLayer.bounds=shapeLayerBound;
+    shapeLayer.position=CGPointMake(layerBound.size.width/2, layerBound.size.height/2);
+    UIBezierPath *path=[UIBezierPath bezierPath];
+
+    
+    for(NSArray* pointsArg in groupsArg){
+        for(int i=0;i<pointsArg.count;i++){
+            NSValue * pointValue = pointsArg[i];
+            CGPoint normalizedPoint=[pointValue CGPointValue];
+            CGPoint imagePoint=VNImagePointForNormalizedPoint(normalizedPoint,shapeLayerBound.size.width,
+                                                              shapeLayerBound.size.height);
+            CGPoint layerPoint=CGPointMake(imagePoint.x, shapeLayerBound.size.height-imagePoint.y);
+            if (i==0){
+                [path moveToPoint:layerPoint];
+            }else{
+                [path addLineToPoint:layerPoint];
+            }
+        }
+    }
+    
+    shapeLayer.path=path.CGPath;
+    shapeLayer.strokeColor=UIColor.redColor.CGColor;
+    shapeLayer.fillColor=UIColor.clearColor.CGColor;
+    shapeLayer.lineWidth=1;
+    [layer addSublayer:shapeLayer];
+}
+
 
 @end
