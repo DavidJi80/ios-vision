@@ -106,7 +106,7 @@
 				04AD3BA4257493760033E4A7 /* 10.Contour */,
 				040BD3A2256A8B920021558E /* 8.Body */,
 				04E6C4E62569054C0063EA51 /* 4.Saliency */,
-				04DBAFD02564B15500152EC7 /* 7.StillImage */,
+				04DBAFD02564B15500152EC7 /* 7.Face */,
 				0408F0C52564000700EF467E /* ViewController.h */,
 				0408F0C62564000700EF467E /* ViewController.m */,
 			);
@@ -139,13 +139,13 @@
 			path = 10.Contour;
 			sourceTree = "<group>";
 		};
-		04DBAFD02564B15500152EC7 /* 7.StillImage */ = {
+		04DBAFD02564B15500152EC7 /* 7.Face */ = {
 			isa = PBXGroup;
 			children = (
 				04DBAFD12564B17900152EC7 /* StillImageVC.h */,
 				04DBAFD22564B17900152EC7 /* StillImageVC.m */,
 			);
-			path = 7.StillImage;
+			path = 7.Face;
 			sourceTree = "<group>";
 		};
 		04E6C4E62569054C0063EA51 /* 4.Saliency */ = {
