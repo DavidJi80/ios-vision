@@ -9,12 +9,14 @@
 #import "StillImageVC.h"
 #import "SaliencyVC.h"
 #import "BodyVC.h"
+#import "ContourVC.h"
 
 @interface ViewController ()
 
 @property (strong, nonatomic) UIButton *stillImageBtn;
 @property (strong, nonatomic) UIButton *saliencyBtn;
 @property (strong, nonatomic) UIButton *bodyBtn;
+@property (strong, nonatomic) UIButton *contourBtn;
 
 @end
 
@@ -47,6 +49,14 @@
     [self.view addSubview:self.bodyBtn];
     [self.bodyBtn makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.stillImageBtn.bottom).offset(10);
+        make.left.equalTo(self.view).offset(10);
+        make.right.equalTo(self.view).offset(-10);
+        make.height.equalTo(40);
+    }];
+    
+    [self.view addSubview:self.contourBtn];
+    [self.contourBtn makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.bodyBtn.bottom).offset(10);
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
         make.height.equalTo(40);
@@ -91,6 +101,18 @@
     return _bodyBtn;
 }
 
+- (UIButton *)contourBtn{
+    if (!_contourBtn) {
+        UIButton *button = [[UIButton alloc]init];
+        [button setBackgroundImage:nil forState:UIControlStateNormal];
+        [button setTitle:@"10. Contour Detection" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(contourBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        button.backgroundColor=UIColor.brownColor;
+        _contourBtn = button;
+    }
+    return _contourBtn;
+}
+
 #pragma mark - Action
 
 -(void)stillImageBtnAction:(UIButton*)btn{
@@ -105,6 +127,11 @@
 
 -(void)bodyBtnAction:(UIButton*)btn{
     BodyVC *vc=[BodyVC new];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+-(void)contourBtnAction:(UIButton*)btn{
+    ContourVC *vc=[ContourVC new];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
