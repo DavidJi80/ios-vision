@@ -10,6 +10,7 @@
 #import "SaliencyVC.h"
 #import "BodyVC.h"
 #import "ContourVC.h"
+#import "ObjectTrackingVC.h"
 
 @interface ViewController ()
 
@@ -17,6 +18,7 @@
 @property (strong, nonatomic) UIButton *saliencyBtn;
 @property (strong, nonatomic) UIButton *bodyBtn;
 @property (strong, nonatomic) UIButton *contourBtn;
+@property (strong, nonatomic) UIButton *objTrackBtn;
 
 @end
 
@@ -38,9 +40,17 @@
         make.height.equalTo(40);
     }];
     
+    [self.view addSubview:self.objTrackBtn];
+    [self.objTrackBtn makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.saliencyBtn.bottom).offset(10);
+        make.left.equalTo(self.view).offset(10);
+        make.right.equalTo(self.view).offset(-10);
+        make.height.equalTo(40);
+    }];
+    
     [self.view addSubview:self.stillImageBtn];
     [self.stillImageBtn makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.saliencyBtn.bottom).offset(10);
+        make.top.equalTo(self.objTrackBtn.bottom).offset(10);
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
         make.height.equalTo(40);
@@ -113,6 +123,18 @@
     return _contourBtn;
 }
 
+- (UIButton *)objTrackBtn{
+    if (!_objTrackBtn) {
+        UIButton *button = [[UIButton alloc]init];
+        [button setBackgroundImage:nil forState:UIControlStateNormal];
+        [button setTitle:@"5. Object Tracking" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(objTrackBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        button.backgroundColor=UIColor.brownColor;
+        _objTrackBtn = button;
+    }
+    return _objTrackBtn;
+}
+
 #pragma mark - Action
 
 -(void)stillImageBtnAction:(UIButton*)btn{
@@ -132,6 +154,11 @@
 
 -(void)contourBtnAction:(UIButton*)btn{
     ContourVC *vc=[ContourVC new];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+-(void)objTrackBtnAction:(UIButton*)btn{
+    ObjectTrackingVC *vc=[ObjectTrackingVC new];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
